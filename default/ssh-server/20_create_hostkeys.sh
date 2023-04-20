@@ -2,7 +2,9 @@
 
 microk8s status --wait-ready
 
-if [[ kubectl -n default get secret ssh-keys &>/dev/null ]];
+kubectl -n default get secret ssh-keys &>/dev/null
+RESULT=$?
+if [[ $RESULT ]];
     TEMPDIR=$(mktemp -d)
     rm -rf $TEMPDIR
     mkdir $TEMPDIR
