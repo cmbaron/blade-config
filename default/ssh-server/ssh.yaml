@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ssh
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ssh
+  template:
+    metadata:
+      labels:
+        app: ssh
+    spec:
+      containers:
+      - name: master
+        image: public.ecr.aws/s0y1t3q2/baronos/vscode-remote
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 22
+      #  readinessProbe:
+          # tcpSocket:
+          #   port: 22
+          # periodSeconds: 10
+          # timeoutSeconds: 5
+          # successThreshold: 2
+          # failureThreshold: 5
+        env:
+        volumeMounts:
+        - mountPath: /home/vscode/.ssh/
+          name: ssh-dir
+        - mountPath: /etc/ssh/hostKeys/
+          name: ssh-host-keys
+        resources:
+          limits:
+            cpu: 50m
+            memory: 30Mi
+          requests:
+            cpu: 10m
+            memory: 20Mi
+      volumes:
+      - name: ssh-dir
+        secret:
+          secretName: ssh-keys
+          defaultMode: 0600
+      - name: ssh-host-keys
+        secret:
+          secretName: ssh-host-keys
+          defaultMode: 0600
