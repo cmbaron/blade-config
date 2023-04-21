@@ -1,0 +1,122 @@
+# Create a namespace to put ContainerSSH guest pods in
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: containerssh-guests
+---
+# Create a service account ContainerSSH can use
+apiVersion: v1
+kind: ServiceAccount
+automountServiceAccountToken: true
+metadata:
+  name: containerssh
+  namespace: containerssh
+---
+# Create a role ContainerSSH can use
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: containerssh
+  namespace: containerssh-guests
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - pods/logs
+  - pods/exec
+  verbs:
+  - '*'
+---
+# Bind the role to the service account
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: containerssh
+  namespace: containerssh-guests
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: containerssh
+subjects:
+- kind: ServiceAccount
+  name: containerssh
+  namespace: containerssh
+---
+# Create a ContainerSSH config to use the service account in the pod itself.
+apiVersion: v1
+data:
+  config.yaml: |
+    ssh:
+      hostkeys:
+        - /etc/containerssh/host.key
+    auth:
+      url: http://authconfig:8080
+    log:
+      level: debug
+    backend: kubernetes
+    kubernetes:
+      connection:
+        host: kubernetes.default.svc
+        cacertFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+      pod:
+        metadata:
+          namespace: containerssh
+        spec:
+          containers:
+            - name: shell
+              image: containerssh/containerssh-guest-image
+kind: ConfigMap
+metadata:
+  name: containerssh-config
+  namespace: containerssh
+---
+# Deploy ContainerSSH with the service account and configmap applied.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: containerssh
+  name: containerssh
+  namespace: containerssh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: containerssh
+  template:
+    metadata:
+      labels:
+        app: containerssh
+    spec:
+      automountServiceAccountToken: true
+      securityContext:
+        runAsNonRoot: true
+        readOnlyRootFilesystem: true
+      containers:
+      - image: containerssh/containerssh:0.4.1
+        imagePullPolicy: IfNotPresent
+        name: containerssh
+        ports:
+        - containerPort: 2222
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /etc/containerssh/host.key
+          name: hostkey
+          readOnly: true
+          subPath: host.key
+        - mountPath: /etc/containerssh/config.yaml
+          name: config
+          readOnly: true
+          subPath: config.yaml
+      restartPolicy: Always
+      serviceAccount: containerssh
+      serviceAccountName: containerssh
+      volumes:
+      - name: hostkey
+        secret:
+          secretName: containerssh-hostkey
+      - configMap:
+          name: containerssh-config
+        name: config
