@@ -10,22 +10,30 @@ install:
     
 users:
   - name: spike
+    passwd: "!"
     groups: 
       - users
       - admin
     homedir: /home/spike
     shell: /bin/bash
-    system: false
-    no_create_home: false
     ssh_authorized_keys:
       - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDDrXQCinuu5FP5lEwVW1rNd6dBMH09LXJrBr+cQ6Ru38DmSY/0vapgsSB45dXpxK/yabzGmmGpZ1gLIMCMGKj1jhjSMooHZ5/1oueuCKpH6d/ecBvp5iYWnQ8KhqJ4LPBD0sWcEAKz+znWM2jByZbazxhS3YbOn50XaczJWWe42PbFNCg5RZj9TQzTNZLe/hHpy88ceGF/4ceVFPpwOCG5K7gMpRTMrhORJryki+W2Yws1H5KddWjbsOtVWUrSJnN7iuFo26nlbB9bMtY7SYkovVO55z5pVNBi5WFNoiBrsNJrwof1uyYHoHU/ICh8q9/dGMuXSYPhR43cdzEA38d34RQWE27PMP2qOXqW85y9151S3Haer016fuld/+uLScT3dD4RZfV7T/QadRCB05BJbxN3isBDEK9K7D4riibjmn0UW9xar9/MxQloVXWlUiaSGxXaIBiwbpISY0qDjrx34VlrbuTaFh0e6BRVmSS/nme6nVeh+sCluO2vlwfWr0M= cbaron@LAPTOP-KOJMJOP6
 
 stages:
    initramfs:
      - name: "Set user and password"
+       groups:
+          admin:
        users:
           spike:
+            passwd: "!"
+            groups: 
+              - users
+              - admin
             homedir: /home/spike
+            shell: /bin/bash
+            ssh_authorized_keys:
+              - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDDrXQCinuu5FP5lEwVW1rNd6dBMH09LXJrBr+cQ6Ru38DmSY/0vapgsSB45dXpxK/yabzGmmGpZ1gLIMCMGKj1jhjSMooHZ5/1oueuCKpH6d/ecBvp5iYWnQ8KhqJ4LPBD0sWcEAKz+znWM2jByZbazxhS3YbOn50XaczJWWe42PbFNCg5RZj9TQzTNZLe/hHpy88ceGF/4ceVFPpwOCG5K7gMpRTMrhORJryki+W2Yws1H5KddWjbsOtVWUrSJnN7iuFo26nlbB9bMtY7SYkovVO55z5pVNBi5WFNoiBrsNJrwof1uyYHoHU/ICh8q9/dGMuXSYPhR43cdzEA38d34RQWE27PMP2qOXqW85y9151S3Haer016fuld/+uLScT3dD4RZfV7T/QadRCB05BJbxN3isBDEK9K7D4riibjmn0UW9xar9/MxQloVXWlUiaSGxXaIBiwbpISY0qDjrx34VlrbuTaFh0e6BRVmSS/nme6nVeh+sCluO2vlwfWr0M= cbaron@LAPTOP-KOJMJOP6
     
 hostname: "blade-{{ trunc 4 .MachineID }}"
 
