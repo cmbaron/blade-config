@@ -4,7 +4,7 @@ install:
   device: "auto"
   reboot: true
   auto: true
-  image: public.ecr.aws/s0y1t3q2/baronos/core:latest
+  image: public.ecr.aws/s0y1t3q2/baronos/core:v1.27
   grub_options:
     extra_cmdline: "consoleblank=300"
     
