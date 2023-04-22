@@ -1,0 +1,3 @@
+container_image: public.ecr.aws/s0y1t3q2/baronos/core:v1.27
+disable_http_server: true
+disable_netboot: true

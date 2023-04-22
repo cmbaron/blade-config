@@ -1,0 +1,60 @@
+Objectives:
+- microk8s install running after fs is running ro
+     - this is from provider-microk8s, the go code itself writes the script with stage "boot.before", but it needs to be stage "fs" for microk8s to update state 
+- figure out provider-microk8s composition
+   - layer provider-microk8s on top of provider-baronos (fork of provider-kairos)
+   - DONE build a new base image, layer
+     - (~DONE) debug microk8s not starting (assume is dirty downgrade)
+     - debug upgrade not working
+- try fresh install
+   + Found:
+     - install with cloud config succeeds, then falls into manual install
+   - watch for 
+     - ssh key change   
+     - machine-id instability
+- run workload in cluster (to help dev?)
+- automated build, releases
+- automated upgrade, watching release channel
+- central ops
+  -dup? microk8s administration - syncing config
+  -dup? get kubernetes config from cloud
+  - get cloud-config from cloud
+- console splash screen 
+- figure out where kairos user is coming from
+
+pending:
+- machine-id is not secure to use - opened issue under yip
+
+Out of scope:
+- secure boot
+- client/server -- AWS Bluegrass
+   - control api
+   - data apis
+- lambdas
+
+- switched to microk8s
+- system upgrade controller from microk8s
+
+- get local or oem config from git
+   - datasources
+
+GPU LOAD NOTE:
+Apr 20 00:37:00 blade-77ca elemental[1514]: + [[ gpu dashboard metallb ingress cert-manager community kata != '' ]]
+Apr 20 00:37:00 blade-77ca elemental[1514]: + microk8s enable gpu
+Apr 20 00:37:00 blade-77ca elemental[1514]: Infer repository core for addon gpu
+Apr 20 00:37:00 blade-77ca elemental[1514]: Enabling NVIDIA GPU
+Apr 20 00:37:00 blade-77ca elemental[1514]: Addon core/dns is already enabled
+Apr 20 00:37:00 blade-77ca elemental[1514]: Addon core/helm3 is already enabled
+Apr 20 00:37:00 blade-77ca elemental[1514]: Checking if NVIDIA driver is already installed
+Apr 20 00:37:00 blade-77ca elemental[1514]: GPU 0: NVIDIA GeForce GTX 980 (UUID: GPU-268214fe-217a-cf65-3a77-908945c6f8a9)
+Apr 20 00:37:00 blade-77ca elemental[1514]: Using host GPU driver
+Apr 20 00:37:00 blade-77ca elemental[1514]: Error: mkdir .config: read-only file system
+Apr 20 00:37:00 blade-77ca elemental[1514]: Error: no repositories found. You must add one before updating
+Apr 20 00:37:00 blade-77ca elemental[1514]: Error: INSTALLATION FAILED: mkdir .cache: read-only file system
+
+
+done:
+- nvidia cuda in cluster
+- machine-id on boot and after boot
+- selinux, enabled on permissive
+- try provider microk8s
