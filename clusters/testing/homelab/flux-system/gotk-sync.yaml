@@ -20,7 +20,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m0s
-  path: ./clusters/testing/blade-3fe1
+  path: ./clusters/testing/homelab
   prune: true
   sourceRef:
     kind: GitRepository
