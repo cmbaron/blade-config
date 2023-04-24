@@ -1,0 +1,63 @@
+#cloud-config
+
+install:
+  device: "auto"
+  reboot: true
+  auto: true
+  image: public.ecr.aws/s0y1t3q2/baronos/core:v1.26
+  grub_options:
+    extra_cmdline: "consoleblank=300"
+    
+users:
+  - name: baron
+    passwd: "!"
+    groups: 
+      - users
+      - admin
+    homedir: /home/baron
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCehj+UhloZ6Q7uFvlLEftU+k/++2QM/2vBQOuD+kGdM6qspuoe0BL6IK7kEqtZ5KvRIAMv0HT2BsPb49H5Pt+Ev0qLaDyGAx0VGgNi9ovrmSf5cIZHOHxUxH+I0hMKO2DKjIA7xq5BSBECrWZL8HhAJSgQq3b5F84Qu3ccX9jShxMo3kUgNmIxStQNVxBcLrYCZJpaMy/MyV3y+gyVLJg3Agb6qG3C3GgI28YJMIyTQrg6Chxk4tF//jrOFLDK03LOZYehTgqvbe6aeeV/yjZt9ezaLkn4KPM3WRlhbBT2ZTHUqbcI7/2lT0bcpQyJazrm78Fr3/z4Hc4pt0Aux3uWb1DfjbvmS+i9oOU6DK1nTcCm94DAP1qRMYWhXFiiXJ23wcMStDg/Mk31JB5JZwR4XUmtViU7fruiHGvgdpHofhSN1kYAMJczdTGJ+yDEGix2b1NUz5XcoJ7Pu2oZKuZNYXS9LPFv3rA+OqFcf2yAteRD/g7crn4udHGpgO9dCPqQ0t/uLbLPBFelcLn53vSEhL1c+MaOj2IOBogeiyoof60BKVWU/Z3lW5qIosFuapq7bVD/ySi8scax1edSkb7no0AvPnDOfcHiiG7jzwNHCFncg9sfiL1REyxYhXm9E9bzevS9wwBMoAD9O4VEc9G79IYDqTzK+ygTR/xtouBTnQ==
+
+stages:
+   initramfs:
+     - name: "Set user and password"
+       groups:
+          admin:
+       users:
+          baron:
+            passwd: "!"
+            groups: 
+              - users
+              - admin
+            homedir: /home/baron
+            shell: /bin/bash
+            ssh_authorized_keys:
+              - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCehj+UhloZ6Q7uFvlLEftU+k/++2QM/2vBQOuD+kGdM6qspuoe0BL6IK7kEqtZ5KvRIAMv0HT2BsPb49H5Pt+Ev0qLaDyGAx0VGgNi9ovrmSf5cIZHOHxUxH+I0hMKO2DKjIA7xq5BSBECrWZL8HhAJSgQq3b5F84Qu3ccX9jShxMo3kUgNmIxStQNVxBcLrYCZJpaMy/MyV3y+gyVLJg3Agb6qG3C3GgI28YJMIyTQrg6Chxk4tF//jrOFLDK03LOZYehTgqvbe6aeeV/yjZt9ezaLkn4KPM3WRlhbBT2ZTHUqbcI7/2lT0bcpQyJazrm78Fr3/z4Hc4pt0Aux3uWb1DfjbvmS+i9oOU6DK1nTcCm94DAP1qRMYWhXFiiXJ23wcMStDg/Mk31JB5JZwR4XUmtViU7fruiHGvgdpHofhSN1kYAMJczdTGJ+yDEGix2b1NUz5XcoJ7Pu2oZKuZNYXS9LPFv3rA+OqFcf2yAteRD/g7crn4udHGpgO9dCPqQ0t/uLbLPBFelcLn53vSEhL1c+MaOj2IOBogeiyoof60BKVWU/Z3lW5qIosFuapq7bVD/ySi8scax1edSkb7no0AvPnDOfcHiiG7jzwNHCFncg9sfiL1REyxYhXm9E9bzevS9wwBMoAD9O4VEc9G79IYDqTzK+ygTR/xtouBTnQ==
+
+hostname: "blade-{{ trunc 4 .MachineID }}"
+
+k3s:
+  enabled: false
+
+cluster:
+  cluster_token: 09jf2jdsamm0--a90f1fas
+  role: init
+  config: |
+    clusterConfiguration:
+          # Changes the default cluster agent port 
+          portCompatibilityRemap : true
+          writeKubeconfig: "/run/kubeconfig"
+          dqliteUseHostIPV4Address: true
+          useHostDNS: true
+          calico: 
+             calicoIPinIP: true
+             calicoAutoDetect: "cidr=10.10.128.0/18"
+    initConfiguration:
+          addons:
+            - dns
+            - gpu
+            - ingress
+            - dashboard
+            - dashboard-ingress
+            - "metallb:192.168.1.40-192.168.1.49"
